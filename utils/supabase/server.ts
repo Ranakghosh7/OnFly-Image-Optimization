@@ -1,4 +1,4 @@
-import { createServerClient, type CookieOptionsWithName } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 export const createClient = async () => {
@@ -12,10 +12,10 @@ export const createClient = async () => {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet: CookieOptionsWithName[]) {
+        setAll(cookiesToSet: { name: string; value: string; options: any }[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) => {
-              cookieStore.set(name, value, options);
+              cookieStore.set({ name, value, ...options });
             });
           } catch (error) {
             // The `set` method was called from a Server Component.

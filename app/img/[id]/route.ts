@@ -134,13 +134,13 @@ export async function GET(
            image = image.resize({
             width: width !== -1 ? width : undefined,
             height: height !== -1 ? height : undefined,
-            fit: fit as keyof sharp.FitEnum,
+            fit: fit as "cover" | "contain" | "fill" | "inside" | "outside",
             withoutEnlargement: true,
            });
         }
 
         imageBuffer = await image
-           .toFormat(format as keyof sharp.FormatEnum, { quality })
+           .toFormat(format as any, { quality })
            .toBuffer();
            
         if (imageBuffer.length > 50 * 1024 * 1024) {
@@ -155,7 +155,7 @@ export async function GET(
         await supabaseService
             .storage
             .from('transform-images')
-.upload(transformFileName, imageBuffer, {
+            .upload(transformFileName, imageBuffer, {
                 contentType: `image/${format}`,
                 upsert: true,
                 cacheControl: '86400',
@@ -173,7 +173,7 @@ export async function GET(
 
     const etag = crypto.createHash('sha256').update(imageBuffer).digest('hex').substring(0, 32);
     
-    return new NextResponse(imageBuffer, {
+    return new NextResponse(imageBuffer as any, {
        headers: {
            'Content-Type': `image/${format}`,
            'Cache-Control': 'public, max-age=31536000, immutable',
